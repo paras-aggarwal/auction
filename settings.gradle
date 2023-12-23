@@ -1,0 +1,11 @@
+rootProject.name = 'auction'
+
+def includeSubProjects() {
+    def currentDir = rootProject.projectDir;
+    currentDir.eachDirRecurse { subDir ->
+        if (file("$subDir/build.gradle").exists())
+            include "${subDir.path.substring(currentDir.path.length()).replace(File.separator, ":")}"
+    }
+}
+
+includeSubProjects()
