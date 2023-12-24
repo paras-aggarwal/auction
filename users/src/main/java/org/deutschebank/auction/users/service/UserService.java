@@ -3,6 +3,8 @@ package org.deutschebank.auction.users.service;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.deutschebank.auction.users.exception.InvalidRequestException;
+import org.deutschebank.auction.users.exception.ResourceNotFoundException;
 import org.deutschebank.auction.users.model.User;
 import org.deutschebank.auction.users.model.request.SearchUserRequest;
 import org.deutschebank.auction.users.repository.UserRepository;
@@ -21,29 +23,26 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUser(final String userToken) throws Exception {
         org.deutschebank.auction.users.repository.record.User userRecord = userRepository.findByToken(userToken);
+        if (userRecord == null) {
+            log.warn("User not found for the given token: {}", userToken);
+            throw new InvalidRequestException("", "User not found");
+        }
         log.info("User with token: {} found", userToken);
         return mapToModel(userRecord);
     }
 
     @Transactional
     public User addUser(final User user) throws Exception {
-        org.deutschebank.auction.users.repository.record.User existingUserByPhone =
-                userRepository.findByPhoneNumber(user.getPhoneNumber());
-        if (existingUserByPhone != null) {
-            log.warn("Phone number: {} already in use", user.getPhoneNumber());
-            throw new IllegalArgumentException("This phone number cannot be used");
-        }
-        org.deutschebank.auction.users.repository.record.User existingUserByEmail =
-                userRepository.findByEmail(user.getEmail());
-        if (existingUserByEmail != null) {
-            log.warn("Email: {} already in use", user.getEmail());
-            throw new IllegalArgumentException("This email cannot be used");
-        }
-
+        checkForExistingUser(user);
         org.deutschebank.auction.users.repository.record.User userRecord = mapToRecord(user);
-        org.deutschebank.auction.users.repository.record.User savedUser = userRepository.save(userRecord);
-        log.info("New user created with user token: {}", savedUser.getToken());
-        return mapToModel(savedUser);
+        try {
+            org.deutschebank.auction.users.repository.record.User savedUser = userRepository.save(userRecord);
+            log.info("New user created with user token: {}", savedUser.getToken());
+            return mapToModel(savedUser);
+        } catch (final Exception e) {
+            log.error("Exception occurred while creating user: ", e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -59,11 +58,26 @@ public class UserService {
             userRecord = userRepository.findByEmail(searchUserRequest.getEmail());
         }
         if (userRecord == null) {
-            return null;
+            throw new ResourceNotFoundException("", "User not found for the provided information");
         }
         log.info("User found for email: {} and phone number: {}", searchUserRequest.getEmail(),
                 searchUserRequest.getPhoneNumber());
         return mapToModel(userRecord);
+    }
+
+    private void checkForExistingUser(User user) {
+        org.deutschebank.auction.users.repository.record.User existingUserByPhone =
+                userRepository.findByPhoneNumber(user.getPhoneNumber());
+        if (existingUserByPhone != null) {
+            log.warn("Phone number: {} already in use", user.getPhoneNumber());
+            throw new InvalidRequestException("", "Phone number is already associated with an account");
+        }
+        org.deutschebank.auction.users.repository.record.User existingUserByEmail =
+                userRepository.findByEmail(user.getEmail());
+        if (existingUserByEmail != null) {
+            log.warn("Email: {} already in use", user.getEmail());
+            throw new InvalidRequestException("", "Email is already associated with an account");
+        }
     }
 
     private org.deutschebank.auction.users.repository.record.User mapToRecord(User user) throws Exception {

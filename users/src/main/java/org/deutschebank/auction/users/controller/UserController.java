@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.deutschebank.auction.users.model.User;
 import org.deutschebank.auction.users.model.request.SearchUserRequest;
 import org.deutschebank.auction.users.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,15 +24,7 @@ public class UserController {
 
     @PostMapping("/user/search")
     public User searchUser(@RequestBody SearchUserRequest searchUserRequest) throws Exception {
-        User user = userService.searchUser(searchUserRequest);
-        if (user == null) {
-            throw new ResourceNotFoundException();
-        }
-        return user;
-    }
-
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public class ResourceNotFoundException extends RuntimeException {
+        return userService.searchUser(searchUserRequest);
     }
 
 }
