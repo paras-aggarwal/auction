@@ -25,7 +25,7 @@ public class UserService {
         org.deutschebank.auction.users.repository.record.User userRecord = userRepository.findByToken(userToken);
         if (userRecord == null) {
             log.warn("User not found for the given token: {}", userToken);
-            throw new InvalidRequestException("", "User not found");
+            throw new ResourceNotFoundException("", "User not found");
         }
         log.info("User with token: {} found", userToken);
         return mapToModel(userRecord);
