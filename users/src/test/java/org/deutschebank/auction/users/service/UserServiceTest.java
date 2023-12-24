@@ -1,6 +1,8 @@
 package org.deutschebank.auction.users.service;
 
 import org.assertj.core.api.Assertions;
+import org.deutschebank.auction.users.exception.InvalidRequestException;
+import org.deutschebank.auction.users.exception.ResourceNotFoundException;
 import org.deutschebank.auction.users.model.request.SearchUserRequest;
 import org.deutschebank.auction.users.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,7 @@ public class UserServiceTest {
     void givenInvalidUserToken_whenGetUser_thenThrowException() throws Exception {
         org.deutschebank.auction.users.model.User userModel = getUserModel();
         userService.addUser(userModel);
-        assertThrows(Exception.class, () -> userService.getUser(UUID.randomUUID().toString()));
+        assertThrows(InvalidRequestException.class, () -> userService.getUser(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -57,7 +59,7 @@ public class UserServiceTest {
     void givenExistingUser_whenAddUser_thenThrowException() throws Exception {
         org.deutschebank.auction.users.model.User user = getUserModel();
         userService.addUser(user);
-        assertThrows(Exception.class, () -> userService.addUser(user));     // 2nd attempt to add same user
+        assertThrows(InvalidRequestException.class, () -> userService.addUser(user));     // 2nd attempt to add same user
     }
 
     @Test
@@ -102,13 +104,11 @@ public class UserServiceTest {
 
     @Test
     @Sql(scripts = "/sql/delete-user.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void givenUserNotInRecord_whenSearchUser_thenReturnNull() throws Exception {
-        org.deutschebank.auction.users.model.User response = userService.searchUser(SearchUserRequest.builder()
+    void givenUserNotInRecord_whenSearchUser_thenReturnNull() {
+        assertThrows(ResourceNotFoundException.class, () -> userService.searchUser(SearchUserRequest.builder()
                 .phoneNumber("randomPhone")
                 .email("abc@xyz.de")
-                .build());
-
-        Assertions.assertThat(response).isNull();
+                .build()));
     }
 
     private org.deutschebank.auction.users.model.User getUserModel() {
