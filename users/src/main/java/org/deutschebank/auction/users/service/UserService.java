@@ -3,6 +3,7 @@ package org.deutschebank.auction.users.service;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.deutschebank.auction.users.exception.BusinessException;
 import org.deutschebank.auction.users.exception.InvalidRequestException;
 import org.deutschebank.auction.users.exception.ResourceNotFoundException;
 import org.deutschebank.auction.users.model.User;
@@ -55,7 +56,7 @@ public class UserService {
             userRecord = userRepository.findByEmail(searchUserRequest.getEmail());
         }
         if (userRecord == null) {
-            throw new ResourceNotFoundException("", "User not found for the provided information");
+            throw new ResourceNotFoundException("User not found for the provided information");
         }
         log.info("User found for email: {} and phone number: {}", searchUserRequest.getEmail(),
                 searchUserRequest.getPhoneNumber());
@@ -67,20 +68,20 @@ public class UserService {
                 userRepository.findByPhoneNumber(user.getPhoneNumber());
         if (existingUserByPhone != null) {
             log.warn("Phone number: {} already in use", user.getPhoneNumber());
-            throw new InvalidRequestException("", "Phone number is already associated with an account");
+            throw new InvalidRequestException("Phone number is already associated with an account");
         }
         final org.deutschebank.auction.users.repository.record.User existingUserByEmail =
                 userRepository.findByEmail(user.getEmail());
         if (existingUserByEmail != null) {
             log.warn("Email: {} already in use", user.getEmail());
-            throw new InvalidRequestException("", "Email is already associated with an account");
+            throw new InvalidRequestException("Email is already associated with an account");
         }
     }
 
-    private org.deutschebank.auction.users.repository.record.User mapToRecord(final User user) throws Exception {
+    private org.deutschebank.auction.users.repository.record.User mapToRecord(final User user) {
         if (user == null) {
             log.error("Cannot convert user to entity");
-            throw new Exception("Unprocessable entity");
+            throw new BusinessException("Unprocessable entity");
         }
 
         final org.deutschebank.auction.users.repository.record.User userRecord =
@@ -98,10 +99,10 @@ public class UserService {
         return userRecord;
     }
 
-    private User mapToModel(final org.deutschebank.auction.users.repository.record.User savedUser) throws Exception {
+    private User mapToModel(final org.deutschebank.auction.users.repository.record.User savedUser) {
         if (savedUser == null) {
             log.error("User record is not processable");
-            throw new Exception("Unprocessable entity");
+            throw new BusinessException("Unprocessable entity");
         }
         return User.builder()
                 .userToken(savedUser.getToken())

@@ -12,7 +12,7 @@ import org.deutschebank.auction.biding.model.ProductStatusResponse;
 import org.deutschebank.auction.biding.model.Products;
 import org.deutschebank.auction.biding.model.request.ToggleProductStatusRequest;
 import org.deutschebank.auction.biding.repository.ProductRepository;
-import org.deutschebank.auction.biding.service.common.UserValidaterService;
+import org.deutschebank.auction.biding.service.common.UserValidatorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class ProductServiceTest {
     private RestTemplate restTemplate;
 
     @Autowired
-    private UserValidaterService userValidaterService;
+    private UserValidatorService userValidatorService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
