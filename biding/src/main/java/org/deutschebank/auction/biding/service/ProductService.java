@@ -11,7 +11,7 @@ import org.deutschebank.auction.biding.model.Products;
 import org.deutschebank.auction.biding.model.request.ToggleProductStatusRequest;
 import org.deutschebank.auction.biding.repository.ProductRepository;
 import org.deutschebank.auction.biding.repository.record.ProductDetail;
-import org.deutschebank.auction.biding.service.common.UserValidaterService;
+import org.deutschebank.auction.biding.service.common.UserValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private final UserValidaterService userValidaterService;
+    private final UserValidatorService userValidatorService;
 
     public Products getProducts(final boolean allowInactive) {
         final List<ProductDetail> productRecords;
@@ -39,10 +39,10 @@ public class ProductService {
 
     @Transactional
     public Product addProduct(final String userToken, final Product product) {
-        userValidaterService.validateUser(userToken);
+        userValidatorService.validateUser(userToken);
         if (product.getStartPrice() == null || product.getStartPrice() <= 0) {
             log.warn("Product start bid should be greater than 0");
-            throw new InvalidRequestException("", "Product's minimum bid price should be greater than 0");
+            throw new InvalidRequestException("Product's minimum bid price should be greater than 0");
         }
         final ProductDetail productDetail = mapToRecord(product, userToken);
         final ProductDetail savedProduct = saveProduct(productDetail);
@@ -56,11 +56,11 @@ public class ProductService {
             final ProductDetail productRecord = getProductById(productIdentifier);
             if (!userToken.equals(productRecord.getAuthor())) {
                 log.warn("User: {} is not the author of the product: {}", userToken, productIdentifier);
-                throw new InvalidRequestException("", "Only product author can make this change");
+                throw new InvalidRequestException("Only product author can make this change");
             }
             if (productRecord.getSold()) {
                 log.warn("Product is already sold and status cannot be changed");
-                throw new InvalidRequestException("", "Product status cannot be changed for already sold out product");
+                throw new InvalidRequestException("Product status cannot be changed for already sold out product");
             }
             productRecord.setActive(request.isActive());
             saveProduct(productRecord);
@@ -119,7 +119,7 @@ public class ProductService {
             productDetail.setStartPrice(product.getStartPrice());
             return productDetail;
         } else {
-            throw new InvalidRequestException("", "empty product details provided");
+            throw new InvalidRequestException("empty product details provided");
         }
     }
 

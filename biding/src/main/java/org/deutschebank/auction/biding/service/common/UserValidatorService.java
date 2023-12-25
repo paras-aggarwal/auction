@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Log4j2
 @RequiredArgsConstructor
-public class UserValidaterService {
+public class UserValidatorService {
 
     private final UserClient userClient;
 
@@ -18,7 +18,7 @@ public class UserValidaterService {
         final UserResponse user = userClient.getUser(userToken);
         if (user == null) {
             log.warn("User: {} is not valid", userToken);
-            throw new InvalidRequestException("", "User not found");
+            throw new InvalidRequestException("User not found");
         }
     }
 

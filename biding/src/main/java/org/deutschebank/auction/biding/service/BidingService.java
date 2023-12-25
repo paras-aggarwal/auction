@@ -13,7 +13,7 @@ import org.deutschebank.auction.biding.repository.BidingRepository;
 import org.deutschebank.auction.biding.repository.ProductRepository;
 import org.deutschebank.auction.biding.repository.record.Biding;
 import org.deutschebank.auction.biding.repository.record.ProductDetail;
-import org.deutschebank.auction.biding.service.common.UserValidaterService;
+import org.deutschebank.auction.biding.service.common.UserValidatorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ import java.util.Date;
 @Transactional(readOnly = true)
 public class BidingService {
 
-    private final UserValidaterService userValidaterService;
+    private final UserValidatorService userValidatorService;
 
     private final ProductRepository productRepository;
     private final BidingRepository bidingRepository;
@@ -37,9 +37,9 @@ public class BidingService {
             final ProductDetail productRecord = productRepository.findByIdAndActive(productIdentifier, true);
             if (productRecord.getAuthor().equals(userToken)) {
                 log.warn("User: {} is the author of this product: {}", userToken, productIdentifier);
-                throw new InvalidRequestException("", "Author is not allowed to place the bid");
+                throw new InvalidRequestException("Author is not allowed to place the bid");
             }
-            userValidaterService.validateUser(userToken);
+            userValidatorService.validateUser(userToken);
             return processBid(request, userToken, productRecord);
         } catch (final EntityNotFoundException e) {
             log.warn("product: {} not found", productIdentifier, e);
@@ -55,7 +55,7 @@ public class BidingService {
         final ProductDetail productRecord = productRepository.getReferenceById(productIdentifier);
         if (!productRecord.getAuthor().equals(userToken)) {
             log.warn("Only product author can end auction for a product");
-            throw new InvalidRequestException("", "Auction can only be ended by product author");
+            throw new InvalidRequestException("Auction can only be ended by product author");
         }
         final Biding highestBid = bidingRepository.findFirstByProductDetailOrderByBidPriceDescTimestampAsc(productRecord);
         productRecord.setSold(true);
