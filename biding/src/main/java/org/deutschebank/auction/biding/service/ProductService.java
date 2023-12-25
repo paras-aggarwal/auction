@@ -27,8 +27,8 @@ public class ProductService {
 
     private final UserValidaterService userValidaterService;
 
-    public Products getProducts(boolean allowInactive) {
-        List<ProductDetail> productRecords;
+    public Products getProducts(final boolean allowInactive) {
+        final List<ProductDetail> productRecords;
         if (allowInactive) {
             productRecords = productRepository.findAll();
         } else {
@@ -44,8 +44,8 @@ public class ProductService {
             log.warn("Product start bid should be greater than 0");
             throw new InvalidRequestException("", "Product's minimum bid price should be greater than 0");
         }
-        ProductDetail productDetail = mapToRecord(product, userToken);
-        ProductDetail savedProduct = saveProduct(productDetail);
+        final ProductDetail productDetail = mapToRecord(product, userToken);
+        final ProductDetail savedProduct = saveProduct(productDetail);
         return mapToModel(savedProduct);
     }
 
@@ -53,7 +53,7 @@ public class ProductService {
     public ProductStatusResponse toggleProductStatus(final String userToken, final Long productIdentifier,
                                                      final ToggleProductStatusRequest request) {
         try {
-            ProductDetail productRecord = getProductById(productIdentifier);
+            final ProductDetail productRecord = getProductById(productIdentifier);
             if (!userToken.equals(productRecord.getAuthor())) {
                 log.warn("User: {} is not the author of the product: {}", userToken, productIdentifier);
                 throw new InvalidRequestException("", "Only product author can make this change");
@@ -78,7 +78,7 @@ public class ProductService {
         }
     }
 
-    private ProductDetail saveProduct(ProductDetail productDetail) {
+    private ProductDetail saveProduct(final ProductDetail productDetail) {
         return productRepository.save(productDetail);
     }
 
@@ -86,15 +86,15 @@ public class ProductService {
         return productRepository.getReferenceById(productIdentifier);
     }
 
-    private Products mapListToModel(List<ProductDetail> productRecords) {
-        List<Product> products = productRecords.stream()
+    private Products mapListToModel(final List<ProductDetail> productRecords) {
+        final List<Product> products = productRecords.stream()
                 .map(this::mapToModel)
                 .toList();
         return Products.builder()
                 .products(products).build();
     }
 
-    private Product mapToModel(ProductDetail savedProduct) {
+    private Product mapToModel(final ProductDetail savedProduct) {
         return Product.builder()
                 .id(savedProduct.getId())
                 .name(savedProduct.getName())
@@ -106,9 +106,9 @@ public class ProductService {
                 .build();
     }
 
-    private ProductDetail mapToRecord(Product product, String userToken) {
+    private ProductDetail mapToRecord(final Product product, final String userToken) {
         if (product != null && userToken != null) {
-            ProductDetail productDetail = new ProductDetail();
+            final ProductDetail productDetail = new ProductDetail();
             productDetail.setName(product.getName());
             productDetail.setDescription(product.getDescription());
             productDetail.setSold(false);
