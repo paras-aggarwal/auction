@@ -9,18 +9,16 @@ import org.deutschebank.auction.users.model.User;
 import org.deutschebank.auction.users.model.request.SearchUserRequest;
 import org.deutschebank.auction.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@EnableTransactionManagement
 @Log4j2
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     public User getUser(final String userToken) throws Exception {
         org.deutschebank.auction.users.repository.record.User userRecord = userRepository.findByToken(userToken);
         if (userRecord == null) {
@@ -45,7 +43,6 @@ public class UserService {
         }
     }
 
-    @Transactional(readOnly = true)
     public User searchUser(final SearchUserRequest searchUserRequest) throws Exception {
         org.deutschebank.auction.users.repository.record.User userRecord = null;
         if (StringUtils.isNotBlank(searchUserRequest.getEmail()) &&
