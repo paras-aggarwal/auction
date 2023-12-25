@@ -20,7 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User getUser(final String userToken) throws Exception {
-        org.deutschebank.auction.users.repository.record.User userRecord = userRepository.findByToken(userToken);
+        final org.deutschebank.auction.users.repository.record.User userRecord = userRepository.findByToken(userToken);
         if (userRecord == null) {
             log.warn("User not found for the given token: {}", userToken);
             throw new ResourceNotFoundException("", "User not found");
@@ -32,7 +32,7 @@ public class UserService {
     @Transactional
     public User addUser(final User user) throws Exception {
         checkForExistingUser(user);
-        org.deutschebank.auction.users.repository.record.User userRecord = mapToRecord(user);
+        final org.deutschebank.auction.users.repository.record.User userRecord = mapToRecord(user);
         try {
             org.deutschebank.auction.users.repository.record.User savedUser = userRepository.save(userRecord);
             log.info("New user created with user token: {}", savedUser.getToken());
@@ -62,14 +62,14 @@ public class UserService {
         return mapToModel(userRecord);
     }
 
-    private void checkForExistingUser(User user) {
-        org.deutschebank.auction.users.repository.record.User existingUserByPhone =
+    private void checkForExistingUser(final User user) {
+        final org.deutschebank.auction.users.repository.record.User existingUserByPhone =
                 userRepository.findByPhoneNumber(user.getPhoneNumber());
         if (existingUserByPhone != null) {
             log.warn("Phone number: {} already in use", user.getPhoneNumber());
             throw new InvalidRequestException("", "Phone number is already associated with an account");
         }
-        org.deutschebank.auction.users.repository.record.User existingUserByEmail =
+        final org.deutschebank.auction.users.repository.record.User existingUserByEmail =
                 userRepository.findByEmail(user.getEmail());
         if (existingUserByEmail != null) {
             log.warn("Email: {} already in use", user.getEmail());
@@ -77,13 +77,13 @@ public class UserService {
         }
     }
 
-    private org.deutschebank.auction.users.repository.record.User mapToRecord(User user) throws Exception {
+    private org.deutschebank.auction.users.repository.record.User mapToRecord(final User user) throws Exception {
         if (user == null) {
             log.error("Cannot convert user to entity");
             throw new Exception("Unprocessable entity");
         }
 
-        org.deutschebank.auction.users.repository.record.User userRecord =
+        final org.deutschebank.auction.users.repository.record.User userRecord =
                 new org.deutschebank.auction.users.repository.record.User();
         userRecord.setFirstName(user.getFirstName());
         userRecord.setLastName(user.getLastName());
@@ -98,7 +98,7 @@ public class UserService {
         return userRecord;
     }
 
-    private User mapToModel(org.deutschebank.auction.users.repository.record.User savedUser) throws Exception {
+    private User mapToModel(final org.deutschebank.auction.users.repository.record.User savedUser) throws Exception {
         if (savedUser == null) {
             log.error("User record is not processable");
             throw new Exception("Unprocessable entity");
