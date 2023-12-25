@@ -17,6 +17,9 @@ Notes:
 - Users Service (To store user information)
 - Biding Service (To store products and associated bids)
 
+**Basic architecture:**
+![basic_architecture.png](docs%2Fbasic_architecture.png)
+
 ### Database design
 **Users Service**
 
@@ -61,6 +64,8 @@ Table #2: [foreign key with `product_detail.id`]
 - Date timestamp (not nullable, not updatable)
 - Double bid_price (not nullable)
 - String bider (not nullable, not updatable)
+
+![database.png](docs%2Fdatabase.png)
 
 ### APIs and curls
 
