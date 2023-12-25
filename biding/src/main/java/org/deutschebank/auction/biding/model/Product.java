@@ -11,8 +11,9 @@ public class Product {
     String name;
     String description;
     Double startPrice;
-    boolean sold;
-    boolean active;
+    Boolean sold;
+    Double soldPrice;
+    Boolean active;
     String author;
 
 }

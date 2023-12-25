@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BidingRepository extends JpaRepository<Biding, Long> {
 
-    Biding findByProductDetailOrderByBidPriceDescTimestampAsc(ProductDetail productDetail);
+    Biding findFirstByProductDetailOrderByBidPriceDescTimestampAsc(ProductDetail productDetail);
 }
