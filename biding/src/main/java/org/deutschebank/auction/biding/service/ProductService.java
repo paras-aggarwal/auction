@@ -58,14 +58,14 @@ public class ProductService {
                 log.warn("User: {} is not the author of the product: {}", userToken, productIdentifier);
                 throw new InvalidRequestException("", "Only product author can make this change");
             }
-            if (productRecord.isSold()) {
+            if (productRecord.getSold()) {
                 log.warn("Product is already sold and status cannot be changed");
                 throw new InvalidRequestException("", "Product status cannot be changed for already sold out product");
             }
             productRecord.setActive(request.isActive());
             saveProduct(productRecord);
             return ProductStatusResponse.builder()
-                    .status(productRecord.isActive() ? ProductStatus.ACTIVE : ProductStatus.INACTIVE)
+                    .status(productRecord.getActive() ? ProductStatus.ACTIVE : ProductStatus.INACTIVE)
                     .build();
         } catch (final EntityNotFoundException e) {
             log.error("Invalid product id: {} provided", productIdentifier, e);
@@ -99,9 +99,10 @@ public class ProductService {
                 .id(savedProduct.getId())
                 .name(savedProduct.getName())
                 .description(savedProduct.getDescription())
-                .active(savedProduct.isActive())
+                .active(savedProduct.getActive())
                 .startPrice(savedProduct.getStartPrice())
-                .sold(savedProduct.isSold())
+                .sold(savedProduct.getSold())
+                .soldPrice(savedProduct.getSoldPrice())
                 .author(savedProduct.getAuthor())
                 .build();
     }
@@ -112,7 +113,8 @@ public class ProductService {
             productDetail.setName(product.getName());
             productDetail.setDescription(product.getDescription());
             productDetail.setSold(false);
-            productDetail.setActive(product.isActive());
+            productDetail.setSoldPrice(null);
+            productDetail.setActive(product.getActive());
             productDetail.setAuthor(userToken);
             productDetail.setStartPrice(product.getStartPrice());
             return productDetail;

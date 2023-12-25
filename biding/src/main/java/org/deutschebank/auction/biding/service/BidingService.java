@@ -57,9 +57,10 @@ public class BidingService {
             log.warn("Only product author can end auction for a product");
             throw new InvalidRequestException("", "Auction can only be ended by product author");
         }
-        final Biding highestBid = bidingRepository.findByProductDetailOrderByBidPriceDescTimestampAsc(productRecord);
+        final Biding highestBid = bidingRepository.findFirstByProductDetailOrderByBidPriceDescTimestampAsc(productRecord);
         productRecord.setSold(true);
         productRecord.setActive(false);
+        productRecord.setSoldPrice(highestBid != null ? highestBid.getBidPrice() : null);
         productRepository.save(productRecord);
 
         final AuctionWinner.AuctionWinnerBuilder auctionWinnerBuilder = AuctionWinner.builder();

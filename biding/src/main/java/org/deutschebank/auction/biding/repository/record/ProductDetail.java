@@ -29,13 +29,15 @@ public class ProductDetail {
     private String description;
 
     @Column(name = "start_price", nullable = false)
-    private double startPrice;
+    private Double startPrice;
 
     @Column(nullable = false)
-    private boolean sold;
+    private Boolean sold;
+
+    private Double soldPrice;
 
     @Column(nullable = false)
-    private boolean active;
+    private Boolean active;
 
     @Column(nullable = false)
     private String author;
