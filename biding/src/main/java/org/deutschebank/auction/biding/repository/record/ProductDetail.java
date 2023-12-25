@@ -34,6 +34,7 @@ public class ProductDetail {
     @Column(nullable = false)
     private Boolean sold;
 
+    @Column(name = "sold_price")
     private Double soldPrice;
 
     @Column(nullable = false)

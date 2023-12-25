@@ -9,7 +9,9 @@ import lombok.Setter;
 import java.util.Date;
 
 @Entity
-@Table(name = "biding_list")
+@Table(name = "biding_list", indexes = {
+        @Index(name = "productDetailIndex", columnList = "product_detail_id, bid_price DESC, timestamp")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +27,7 @@ public class Biding {
     private Date timestamp;
 
     @Column(nullable = false, name = "bid_price")
-    private double bidPrice;
+    private Double bidPrice;
 
     @Column(nullable = false, updatable = false)
     private String bider;
