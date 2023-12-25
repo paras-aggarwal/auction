@@ -84,7 +84,7 @@ curl --location 'localhost:8081/user' \
 }'
 ```
 
-- `POST: /user/search {}`: To search a user by email or phone number
+- `POST: /user/search {}`: **To search a user by email or phone number**
 ```
 curl --location 'localhost:8081/user/search' \
 --header 'Content-Type: application/json' \
@@ -101,7 +101,7 @@ curl --location 'localhost:8081/user/search' \
 }'
 ```
 
-- `GET: /user/{userToken}`: To get user information based on provided user token
+- `GET: /user/{userToken}`: **To get user information based on provided user token**
 ```
 curl --location 'localhost:8081/user/{USER_TOKEN}' \
 --header 'Content-Type: application/json'
@@ -109,7 +109,7 @@ curl --location 'localhost:8081/user/{USER_TOKEN}' \
 
 **Biding service**
 
-- `POST: /product {}`: To add a new product for auction. (`USER_TOKEN` is unique token of user and can be fetched from `addUser` or `searchUser` response)
+- `POST: /product {}`: **To add a new product for auction**. (`USER_TOKEN` is unique token of user and can be fetched from `addUser` or `searchUser` response)
 > Requires a header `X-User-Token: {USER_TOKEN}`. This user will be considered author and should be a valid user. 
 ```
 curl --location 'localhost:8080/product' \
@@ -123,14 +123,14 @@ curl --location 'localhost:8080/product' \
 }'
 ```
 
-- `GET: /products`: To get list of products
+- `GET: /products`: **To get list of products**
 > Support a query parameter `allow_inactive` support boolean and default value is true. Used to support inactive products in products list. e.g. `GET: /products?allow_inactive=false`
 ```
 curl --location 'localhost:8080/products?allow_inactive=false' \
 --header 'Content-Type: application/json'
 ```
 
-- `PATCH: /product/{PRODUCT_IDENTIFIER} {}`: To toggle product status ACTIVE/INACTIVE. (`PRODUCT_IDENTIFIER` is `id` of product and available in `addProduct` and `getProducts` response).
+- `PATCH: /product/{PRODUCT_IDENTIFIER} {}`: **To toggle product status ACTIVE/INACTIVE.** (`PRODUCT_IDENTIFIER` is `id` of product and available in `addProduct` and `getProducts` response).
 > Requires a header `X-User-Token: {USER_TOKEN}` and only product author can do this action. Status of product cannot be changed once it is sold out.
 ```
 curl --location --request PATCH 'localhost:8080/product/{PRODUCT_IDENTIFIER}' \
@@ -150,7 +150,7 @@ curl --location --request PATCH 'localhost:8080/product/{PRODUCT_IDENTIFIER}' \
 }'
 ```
 
-- `POST: /product/{PRODUCT_IDENTIFIER}/bid {}`: To place a bid
+- `POST: /product/{PRODUCT_IDENTIFIER}/bid {}`: **To place a bid**
 > Requires a header `X-User-Token: {USER_TOKEN}`. This will be considered as user who is biding. Author cannot hit this API.
 ```
 curl --location 'localhost:8080/product/{PRODUCT_IDENTIFIER}/bid' \
@@ -161,10 +161,26 @@ curl --location 'localhost:8080/product/{PRODUCT_IDENTIFIER}/bid' \
 }'
 ```
 
-- `POST: /product/{PRODUCT_IDENTIFIER}/sold`: To end the auction for a product
+- `POST: /product/{PRODUCT_IDENTIFIER}/sold`: **To end the auction for a product**
 > Requires a header `X-User-Token: {USER_TOKEN}`. It should be a valid token and only author can hit this API (so `USER_TOKEN` should represent product author.
 ```
 curl --location --request POST 'localhost:8080/product/{PRODUCT_IDENTIFIER}}/sold' \
 --header 'Content-Type: application/json' \
 --header 'X-User-Token: {USER_TOKEN}'
 ```
+
+### How to install
+**Prerequisites:** 
+- Java 17
+- cURL in terminal or any API platform
+- IntelliJ IDEA or any IDE (Developed on IntelliJ so works well with it)
+- Enable annotation processing in your IDE (IDE preferences/settings > editor > code style > java > annotation processing)
+- Install lombok plugin in your IDE
+
+**Steps**
+- Open this project in your IDE (Project should open as a Gradle project)
+- Once build and indexing is done
+- Open `UsersApplication.java` inside `users/src/main/java/org/deutschebank/auction/users/` and run it.
+- Open `BidingApplication.java` inside `biding/src/main/java/org/deutschebank/auction/biding/` and run it.
+- Use the curl commands mentioned above.
+- You should be able to see this running :).
