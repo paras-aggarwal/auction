@@ -3,8 +3,6 @@ package org.deutschebank.auction.biding.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.deutschebank.auction.biding.client.UserClient;
-import org.deutschebank.auction.biding.client.model.response.ValidateUserResponse;
 import org.deutschebank.auction.biding.exception.InvalidRequestException;
 import org.deutschebank.auction.biding.model.Product;
 import org.deutschebank.auction.biding.model.ProductStatus;
@@ -13,8 +11,8 @@ import org.deutschebank.auction.biding.model.Products;
 import org.deutschebank.auction.biding.model.request.ToggleProductStatusRequest;
 import org.deutschebank.auction.biding.repository.ProductRepository;
 import org.deutschebank.auction.biding.repository.record.ProductDetail;
+import org.deutschebank.auction.biding.service.common.UserValidaterService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,14 +20,13 @@ import java.util.List;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-@EnableTransactionManagement
+@Transactional(readOnly = true)
 public class ProductService {
-
-    private final UserClient userClient;
 
     private final ProductRepository productRepository;
 
-    @Transactional(readOnly = true)
+    private final UserValidaterService userValidaterService;
+
     public Products getProducts(boolean allowInactive) {
         List<ProductDetail> productRecords;
         if (allowInactive) {
@@ -42,7 +39,11 @@ public class ProductService {
 
     @Transactional
     public Product addProduct(final String userToken, final Product product) {
-        validateUser(userToken);
+        userValidaterService.validateUser(userToken);
+        if (product.getStartPrice() == null || product.getStartPrice() <= 0) {
+            log.warn("Product start bid should be greater than 0");
+            throw new InvalidRequestException("", "Product's minimum bid price should be greater than 0");
+        }
         ProductDetail productDetail = mapToRecord(product, userToken);
         ProductDetail savedProduct = saveProduct(productDetail);
         return mapToModel(savedProduct);
@@ -53,7 +54,14 @@ public class ProductService {
                                                      final ToggleProductStatusRequest request) {
         try {
             ProductDetail productRecord = getProductById(productIdentifier);
-            validateAuthor(userToken, productRecord.getAuthor());
+            if (!userToken.equals(productRecord.getAuthor())) {
+                log.warn("User: {} is not the author of the product: {}", userToken, productIdentifier);
+                throw new InvalidRequestException("", "Only product author can make this change");
+            }
+            if (productRecord.isSold()) {
+                log.warn("Product is already sold and status cannot be changed");
+                throw new InvalidRequestException("", "Product status cannot be changed for already sold out product");
+            }
             productRecord.setActive(request.isActive());
             saveProduct(productRecord);
             return ProductStatusResponse.builder()
@@ -62,6 +70,8 @@ public class ProductService {
         } catch (final EntityNotFoundException e) {
             log.error("Invalid product id: {} provided", productIdentifier, e);
             throw new InvalidRequestException("", e.getCause(), "Invalid product indentifier provided");
+        } catch (final InvalidRequestException e) {
+            throw e;
         } catch (final Exception e) {
             log.error("Unexpected error occurred while activating product", e);
             throw e;
@@ -108,20 +118,6 @@ public class ProductService {
             return productDetail;
         } else {
             throw new InvalidRequestException("", "empty product details provided");
-        }
-    }
-
-    private void validateAuthor(String userToken, String productAuthor) {
-        ValidateUserResponse user = userClient.validateAuthor(userToken, productAuthor);
-        if (!user.isValid()) {
-            throw new InvalidRequestException("", "Only product author can make these changes");
-        }
-    }
-
-    private void validateUser(String userToken) {
-        ValidateUserResponse user = userClient.validateUser(userToken);
-        if (!user.isValid()) {
-            throw new InvalidRequestException("", "User does not exist");
         }
     }
 

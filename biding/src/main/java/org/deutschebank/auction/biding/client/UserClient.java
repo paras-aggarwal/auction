@@ -47,7 +47,7 @@ public class UserClient {
         }
     }
 
-    private UserResponse getUser(final String userToken) {
+    public UserResponse getUser(final String userToken) {
         try {
             String uri = UriComponentsBuilder.fromHttpUrl(userServiceRestUrl)
                     .pathSegment("user", userToken)

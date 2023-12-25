@@ -1,15 +1,12 @@
 package org.deutschebank.auction.biding.repository;
 
+import org.deutschebank.auction.biding.repository.record.Biding;
 import org.deutschebank.auction.biding.repository.record.ProductDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface ProductRepository extends JpaRepository<ProductDetail, Long> {
+public interface BidingRepository extends JpaRepository<Biding, Long> {
 
-    List<ProductDetail> findByActive(boolean active);
-    ProductDetail findByIdAndActive(Long id, boolean active);
-
+    Biding findByProductDetailOrderByBidPriceDescTimestampAsc(ProductDetail productDetail);
 }

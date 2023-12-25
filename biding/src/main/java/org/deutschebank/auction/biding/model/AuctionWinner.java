@@ -5,9 +5,9 @@ import lombok.Value;
 
 @Value
 @Builder
-public class BidWinner {
+public class AuctionWinner {
 
-    Long productIdentifier;
-    AuctionWinner winnerDetails;
+    String winner;
+    Double winningBid;
 
 }
